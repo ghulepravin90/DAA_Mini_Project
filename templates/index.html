@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoScope | DAA Algorithm Visualizer & Complexity Analyzer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Empirical Complexity Benchmarking -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-badge">DAA</span>
+                <div>
+                    <div class="logo-title">AlgoScope</div>
+                    <span class="logo-subtitle">Algorithm Visualizer & Complexity Analyzer</span>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs" id="navTabs">
+                <button class="nav-tab-btn active" data-tab="tab-sorting">📊 Sorting</button>
+                <button class="nav-tab-btn" data-tab="tab-searching">🔍 Searching</button>
+                <button class="nav-tab-btn" data-tab="tab-graphs">🕸️ Graphs</button>
+                <button class="nav-tab-btn" data-tab="tab-backtracking">♟️ Backtracking</button>
+                <button class="nav-tab-btn" data-tab="tab-analyzer">📈 Complexity Analyzer</button>
+                <button class="nav-tab-btn" data-tab="tab-theory">📚 DAA Theory & Viva</button>
+            </nav>
+
+            <!-- Actions -->
+            <div class="header-actions">
+                <button class="btn-icon" id="btnAudioToggle" title="Toggle Sound Synthesizer">
+                    🔊
+                </button>
+                <button class="btn-icon" id="btnThemeToggle" title="Toggle Theme (Dark/Light)">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main>
+
+        <!-- ========================================== -->
+        <!-- TAB 1: SORTING VISUALIZER -->
+        <!-- ========================================== -->
+        <section id="tab-sorting" class="tab-pane active">
+            <!-- Controls Bar -->
+            <div class="control-bar">
+                <div class="control-group">
+                    <span class="control-label">Algorithm:</span>
+                    <select id="sortAlgoSelect">
+                        <option value="merge_sort">Merge Sort (Divide & Conquer)</option>
+                        <option value="quick_sort" selected>Quick Sort (Partitioning)</option>
+                        <option value="heap_sort">Heap Sort (Max Heap)</option>
+                        <option value="bubble_sort">Bubble Sort (Comparison)</option>
+                        <option value="insertion_sort">Insertion Sort (Incremental)</option>
+                        <option value="selection_sort">Selection Sort (Greedy)</option>
+                    </select>
+
+                    <label class="control-group" style="cursor: pointer; margin-left: 0.5rem;">
+                        <input type="checkbox" id="sortDualRaceCheck">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--accent);">Dual Race Mode</span>
+                    </label>
+
+                    <select id="sortAlgoSelect2" style="display: none;">
+                        <option value="merge_sort" selected>Merge Sort (Divide & Conquer)</option>
+                        <option value="quick_sort">Quick Sort (Partitioning)</option>
+                        <option value="heap_sort">Heap Sort (Max Heap)</option>
+                        <option value="bubble_sort">Bubble Sort (Comparison)</option>
+                        <option value="insertion_sort">Insertion Sort (Incremental)</option>
+                        <option value="selection_sort">Selection Sort (Greedy)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Size:</span>
+                    <div class="slider-container">
+                        <input type="range" id="sortSizeSlider" min="6" max="40" value="16">
+                        <span id="sortSizeVal" style="font-family: var(--font-mono); font-size: 0.85rem; min-width: 24px;">16</span>
+                    </div>
+
+                    <select id="sortDistSelect">
+                        <option value="random">Random</option>
+                        <option value="sorted">Nearly Sorted</option>
+                        <option value="reverse">Reverse Sorted</option>
+                    </select>
+
+                    <button class="btn btn-secondary btn-sm" id="btnSortGenerate">↺ New Array</button>
+                    <button class="btn btn-secondary btn-sm" id="btnSortCustom">✏️ Custom</button>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Speed:</span>
+                    <div class="slider-container">
+                        <input type="range" id="sortSpeedSlider" min="20" max="600" value="220" style="direction: rtl;">
+                    </div>
+
+                    <button class="btn btn-secondary btn-sm" id="btnSortPrev" title="Step Backward">⏮</button>
+                    <button class="btn btn-primary btn-sm" id="btnSortPlay">▶ Play</button>
+                    <button class="btn btn-secondary btn-sm" id="btnSortNext" title="Step Forward">⏭</button>
+                    <button class="btn btn-danger btn-sm" id="btnSortReset">↺ Reset</button>
+                </div>
+            </div>
+
+            <!-- Custom Array Input Modal/Drawer -->
+            <div id="customArrayBox" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;">
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span style="font-size: 0.85rem; font-weight: 600;">Custom values (comma-separated):</span>
+                    <input type="text" id="customArrayInput" placeholder="e.g. 45, 12, 89, 34, 7, 60, 23" style="flex: 1;">
+                    <button class="btn btn-primary btn-sm" id="btnApplyCustomArray">Apply</button>
+                    <button class="btn btn-secondary btn-sm" id="btnCloseCustomArray">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Visualization Main Area -->
+            <div class="visualizer-layout">
+                <div>
+                    <!-- Primary Stage -->
+                    <div class="stage-card">
+                        <div class="stage-header">
+                            <div class="stage-title">
+                                <span id="sortStageTitle">Quick Sort</span>
+                                <span class="badge badge-purple" id="sortParadigmBadge">Divide and Conquer</span>
+                            </div>
+                            <div class="stats-badges">
+                                <span class="badge badge-info" id="sortStepBadge">Step: 0 / 0</span>
+                                <span class="badge badge-warning" id="sortCompsBadge">Comparisons: 0</span>
+                                <span class="badge badge-success" id="sortSwapsBadge">Swaps/Writes: 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Bar Chart Canvas -->
+                        <div class="visualization-box" id="sortBarContainer">
+                            <!-- Dynamically generated sort bars -->
+                        </div>
+
+                        <!-- Dual Stage (Only visible when Dual Race Mode is checked) -->
+                        <div id="sortDualRaceContainer" style="display: none; margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
+                            <div class="stage-header" style="margin-bottom: 0.5rem;">
+                                <div class="stage-title">
+                                    <span id="sortStageTitle2">Merge Sort</span>
+                                    <span class="badge badge-purple" id="sortParadigmBadge2">Divide and Conquer</span>
+                                </div>
+                                <div class="stats-badges">
+                                    <span class="badge badge-warning" id="sortCompsBadge2">Comparisons: 0</span>
+                                    <span class="badge badge-success" id="sortSwapsBadge2">Swaps/Writes: 0</span>
+                                </div>
+                            </div>
+                            <div class="visualization-box" id="sortBarContainer2" style="min-height: 200px;">
+                                <!-- Bars for 2nd algorithm -->
+                            </div>
+                        </div>
+
+                        <!-- Step Narration -->
+                        <div class="narration-box">
+                            <span class="narration-icon">💡</span>
+                            <span class="narration-text" id="sortNarration">Ready to sort. Click Play or Step Forward to begin execution.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side Information & Pseudocode -->
+                <div class="side-panel">
+                    <!-- Theoretical Complexity Card -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Theoretical Complexity</span>
+                            <span class="badge badge-info" id="sortStabilityBadge">Unstable</span>
+                        </div>
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <div class="complexity-label">Best Time</div>
+                                <div class="complexity-val" id="sortBestTime">O(n log n)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Average Time</div>
+                                <div class="complexity-val" id="sortAvgTime">O(n log n)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Worst Time</div>
+                                <div class="complexity-val" id="sortWorstTime">O(n²)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Worst Space</div>
+                                <div class="complexity-val" id="sortSpace">O(log n)</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.75rem; font-size: 0.78rem; color: var(--text-secondary);" id="sortDescription">
+                            Selects a pivot element and partitions array into elements less than and greater than the pivot.
+                        </div>
+                    </div>
+
+                    <!-- Pseudocode Viewer with line highlighting -->
+                    <div class="info-card" style="flex: 1;">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Algorithm Pseudocode</span>
+                            <span class="badge badge-purple">DAA Trace</span>
+                        </div>
+                        <div class="code-container" id="sortPseudocode">
+                            <!-- Dynamically populated pseudocode lines -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 2: SEARCHING VISUALIZER -->
+        <!-- ========================================== -->
+        <section id="tab-searching" class="tab-pane">
+            <div class="control-bar">
+                <div class="control-group">
+                    <span class="control-label">Algorithm:</span>
+                    <select id="searchAlgoSelect">
+                        <option value="binary_search" selected>Binary Search (Divide & Conquer O(log n))</option>
+                        <option value="linear_search">Linear Search (Sequential O(n))</option>
+                    </select>
+
+                    <span class="control-label" style="margin-left: 0.5rem;">Target Value:</span>
+                    <input type="number" id="searchTargetInput" value="45" style="width: 80px;">
+                    <button class="btn btn-secondary btn-sm" id="btnSearchRandomTarget">🎲 Random Target</button>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Array Size:</span>
+                    <div class="slider-container">
+                        <input type="range" id="searchSizeSlider" min="8" max="30" value="15">
+                        <span id="searchSizeVal" style="font-family: var(--font-mono); font-size: 0.85rem;">15</span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnSearchNewArray">↺ New Array</button>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Speed:</span>
+                    <div class="slider-container">
+                        <input type="range" id="searchSpeedSlider" min="50" max="800" value="350" style="direction: rtl;">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnSearchPrev">⏮</button>
+                    <button class="btn btn-primary btn-sm" id="btnSearchPlay">▶ Search</button>
+                    <button class="btn btn-secondary btn-sm" id="btnSearchNext">⏭</button>
+                    <button class="btn btn-danger btn-sm" id="btnSearchReset">↺ Reset</button>
+                </div>
+            </div>
+
+            <div class="visualizer-layout">
+                <div>
+                    <div class="stage-card">
+                        <div class="stage-header">
+                            <div class="stage-title">
+                                <span id="searchStageTitle">Binary Search</span>
+                                <span class="badge badge-purple" id="searchParadigmBadge">Decrease and Conquer</span>
+                            </div>
+                            <div class="stats-badges">
+                                <span class="badge badge-info" id="searchStepBadge">Step: 0 / 0</span>
+                                <span class="badge badge-warning" id="searchCompsBadge">Comparisons: 0</span>
+                                <span class="badge badge-success" id="searchStatusBadge">Status: Ready</span>
+                            </div>
+                        </div>
+
+                        <!-- Search Array Visual Stage -->
+                        <div class="visualization-box" id="searchArrayContainer" style="align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; min-height: 260px;">
+                            <!-- Elements with low/mid/high markers -->
+                        </div>
+
+                        <!-- Step Narration -->
+                        <div class="narration-box">
+                            <span class="narration-icon">🔍</span>
+                            <span class="narration-text" id="searchNarration">Select a target value and click Play to start searching.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Search Complexity</span>
+                            <span class="badge badge-info" id="searchReqBadge">Sorted Required</span>
+                        </div>
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <div class="complexity-label">Best Time</div>
+                                <div class="complexity-val" id="searchBestTime">O(1)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Average Time</div>
+                                <div class="complexity-val" id="searchAvgTime">O(log n)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Worst Time</div>
+                                <div class="complexity-val" id="searchWorstTime">O(log n)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">Space</div>
+                                <div class="complexity-val" id="searchSpace">O(1)</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.75rem; font-size: 0.78rem; color: var(--text-secondary);" id="searchDescription">
+                            Eliminates half the search range in each comparison.
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="flex: 1;">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Pseudocode</span>
+                            <span class="badge badge-purple">DAA</span>
+                        </div>
+                        <div class="code-container" id="searchPseudocode">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 3: GRAPH ALGORITHMS -->
+        <!-- ========================================== -->
+        <section id="tab-graphs" class="tab-pane">
+            <div class="control-bar">
+                <div class="control-group">
+                    <span class="control-label">Algorithm:</span>
+                    <select id="graphAlgoSelect">
+                        <option value="dijkstra" selected>Dijkstra's Shortest Path (Greedy)</option>
+                        <option value="bfs">Breadth-First Search (Queue-based)</option>
+                        <option value="dfs">Depth-First Search (Stack / Recursion)</option>
+                    </select>
+
+                    <span class="control-label" style="margin-left: 0.5rem;">Preset Graph:</span>
+                    <select id="graphPresetSelect">
+                        <option value="standard" selected>6-Node Weighted Network</option>
+                        <option value="tree">7-Node Binary Tree</option>
+                    </select>
+
+                    <span class="control-label" style="margin-left: 0.5rem;">Source:</span>
+                    <select id="graphStartSelect" style="width: 60px;">
+                        <option value="A" selected>A</option>
+                    </select>
+
+                    <span class="control-label" id="graphDestLabel" style="margin-left: 0.5rem;">Destination:</span>
+                    <select id="graphDestSelect" style="width: 60px;">
+                        <option value="F" selected>F</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Speed:</span>
+                    <div class="slider-container">
+                        <input type="range" id="graphSpeedSlider" min="50" max="1000" value="450" style="direction: rtl;">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnGraphPrev">⏮</button>
+                    <button class="btn btn-primary btn-sm" id="btnGraphPlay">▶ Run</button>
+                    <button class="btn btn-secondary btn-sm" id="btnGraphNext">⏭</button>
+                    <button class="btn btn-danger btn-sm" id="btnGraphReset">↺ Reset</button>
+                </div>
+            </div>
+
+            <div class="visualizer-layout">
+                <div>
+                    <div class="stage-card">
+                        <div class="stage-header">
+                            <div class="stage-title">
+                                <span id="graphStageTitle">Dijkstra's Algorithm</span>
+                                <span class="badge badge-purple" id="graphParadigmBadge">Greedy Method</span>
+                            </div>
+                            <div class="stats-badges">
+                                <span class="badge badge-info" id="graphStepBadge">Step: 0 / 0</span>
+                                <span class="badge badge-success" id="graphVisitedBadge">Visited: 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Graph Canvas -->
+                        <canvas id="graphCanvas" width="700" height="420"></canvas>
+
+                        <!-- Step Narration -->
+                        <div class="narration-box">
+                            <span class="narration-icon">🕸️</span>
+                            <span class="narration-text" id="graphNarration">Select algorithm and click Run to visualize graph traversal.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel">
+                    <!-- Graph State Display (Queue / Stack / Distance Table) -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-title" id="graphStateTitle">Priority Queue & Distances</span>
+                            <span class="badge badge-info" id="graphComplexityBadge">O((V+E) log V)</span>
+                        </div>
+                        <div id="graphStateContent" style="font-family: var(--font-mono); font-size: 0.82rem; max-height: 180px; overflow-y: auto;">
+                            <!-- Populated with distances or queue -->
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="flex: 1;">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Pseudocode</span>
+                            <span class="badge badge-purple">DAA</span>
+                        </div>
+                        <div class="code-container" id="graphPseudocode">
+                            <!-- Pseudocode lines -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 4: BACKTRACKING (N-Queens & Sudoku) -->
+        <!-- ========================================== -->
+        <section id="tab-backtracking" class="tab-pane">
+            <div class="control-bar">
+                <div class="control-group">
+                    <span class="control-label">Problem:</span>
+                    <select id="backtrackProblemSelect">
+                        <option value="n_queens" selected>N-Queens Problem</option>
+                        <option value="sudoku">Sudoku Solver (9x9 Grid)</option>
+                    </select>
+
+                    <div id="nQueensControls" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <span class="control-label" style="margin-left: 0.5rem;">Board Size (N):</span>
+                        <select id="nQueensSizeSelect">
+                            <option value="4" selected>4 x 4 (2 Solutions)</option>
+                            <option value="5">5 x 5 (10 Solutions)</option>
+                            <option value="6">6 x 6 (4 Solutions)</option>
+                            <option value="8">8 x 8 (92 Solutions)</option>
+                        </select>
+                    </div>
+
+                    <div id="sudokuControls" style="display: none; align-items: center; gap: 0.5rem;">
+                        <span class="control-label" style="margin-left: 0.5rem;">Puzzle:</span>
+                        <select id="sudokuPresetSelect">
+                            <option value="easy" selected>Standard Puzzle</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Speed:</span>
+                    <div class="slider-container">
+                        <input type="range" id="backtrackSpeedSlider" min="20" max="600" value="120" style="direction: rtl;">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnBacktrackPrev">⏮</button>
+                    <button class="btn btn-primary btn-sm" id="btnBacktrackPlay">▶ Solve</button>
+                    <button class="btn btn-secondary btn-sm" id="btnBacktrackNext">⏭</button>
+                    <button class="btn btn-danger btn-sm" id="btnBacktrackReset">↺ Reset</button>
+                </div>
+            </div>
+
+            <div class="visualizer-layout">
+                <div>
+                    <div class="stage-card">
+                        <div class="stage-header">
+                            <div class="stage-title">
+                                <span id="backtrackStageTitle">N-Queens Problem</span>
+                                <span class="badge badge-purple">Backtracking Paradigm</span>
+                            </div>
+                            <div class="stats-badges">
+                                <span class="badge badge-info" id="backtrackStepBadge">Step: 0 / 0</span>
+                                <span class="badge badge-success" id="backtrackSolutionsBadge">Solutions: 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Stage: Chessboard or Sudoku Grid -->
+                        <div id="chessboardArea" class="chessboard-container">
+                            <div class="chessboard" id="chessboard">
+                                <!-- Generated chess cells -->
+                            </div>
+                        </div>
+
+                        <div id="sudokuArea" class="sudoku-container" style="display: none;">
+                            <div class="sudoku-board" id="sudokuBoard">
+                                <!-- Generated sudoku cells -->
+                            </div>
+                        </div>
+
+                        <!-- Step Narration -->
+                        <div class="narration-box">
+                            <span class="narration-icon">♟️</span>
+                            <span class="narration-text" id="backtrackNarration">Click Solve to visualize the recursive state-space tree traversal and backtracking.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Backtracking Analysis</span>
+                            <span class="badge badge-warning" id="backtrackComplexityBadge">O(N!)</span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6;" id="backtrackAnalysisText">
+                            Backtracking explores solutions systematically via depth-first search on a state-space tree. If a partial solution violates problem constraints, it prunes the branch and backtracks to try alternative choices.
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="flex: 1;">
+                        <div class="info-card-header">
+                            <span class="info-card-title">Pseudocode</span>
+                            <span class="badge badge-purple">DAA</span>
+                        </div>
+                        <div class="code-container" id="backtrackPseudocode">
+                            <!-- Pseudocode lines -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 5: EMPIRICAL COMPLEXITY ANALYZER -->
+        <!-- ========================================== -->
+        <section id="tab-analyzer" class="tab-pane">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.15rem; font-weight: 700;">Empirical Complexity Benchmark</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Run real-time CPU performance benchmarks in Python across varying input sizes $N$ to validate theoretical asymptotic bounds ($O(n \log n)$ vs $O(n^2)$).
+                        </p>
+                    </div>
+                    <button class="btn btn-primary" id="btnRunBenchmark">🚀 Run Empirical Benchmark</button>
+                </div>
+
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--bg-primary); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div>
+                        <span class="control-label" style="display: block; margin-bottom: 0.4rem;">Algorithms to Test:</span>
+                        <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; font-size: 0.82rem;">
+                            <label><input type="checkbox" name="benchAlgo" value="quick_sort" checked> Quick Sort</label>
+                            <label><input type="checkbox" name="benchAlgo" value="merge_sort" checked> Merge Sort</label>
+                            <label><input type="checkbox" name="benchAlgo" value="heap_sort" checked> Heap Sort</label>
+                            <label><input type="checkbox" name="benchAlgo" value="insertion_sort" checked> Insertion Sort</label>
+                            <label><input type="checkbox" name="benchAlgo" value="bubble_sort"> Bubble Sort</label>
+                            <label><input type="checkbox" name="benchAlgo" value="selection_sort"> Selection Sort</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="control-label" style="display: block; margin-bottom: 0.4rem;">Input Distribution:</span>
+                        <select id="benchDistSelect" style="font-size: 0.82rem;">
+                            <option value="random" selected>Random (Average Case)</option>
+                            <option value="sorted">Already Sorted (Best/Worst Check)</option>
+                            <option value="reverse">Reverse Sorted (Worst Case)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <span class="control-label" style="display: block; margin-bottom: 0.4rem;">Max Size (N):</span>
+                        <select id="benchMaxSizeSelect" style="font-size: 0.82rem;">
+                            <option value="small">N = [50, 100, 200, 400]</option>
+                            <option value="medium" selected>N = [50, 100, 250, 500, 1000]</option>
+                            <option value="large">N = [100, 250, 500, 1000, 2000]</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benchmark Charts -->
+            <div class="benchmark-grid">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <span style="font-weight: 700; font-size: 0.95rem;">Empirical CPU Execution Time (ms)</span>
+                        <span class="badge badge-info">Real Python Measurements</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="benchmarkTimeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <span style="font-weight: 700; font-size: 0.95rem;">Empirical Operation Counts (Comparisons)</span>
+                        <span class="badge badge-purple">DAA Metrics</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="benchmarkOpsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benchmark Results Data Table -->
+            <div class="card">
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Benchmark Summary Table</h3>
+                <div class="data-table-container">
+                    <table class="data-table" id="benchSummaryTable">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Input Size (N)</th>
+                                <th>Avg Execution Time (ms)</th>
+                                <th>Total Comparisons</th>
+                                <th>Swaps / Writes</th>
+                                <th>Theoretical Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                                    Click "Run Empirical Benchmark" above to generate benchmark data.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 6: DAA THEORY & VIVA CHEAT SHEET -->
+        <!-- ========================================== -->
+        <section id="tab-theory" class="tab-pane">
+            <div class="card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">DAA Comprehensive Master Reference & Viva Guide</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                    Key theoretical concepts, asymptotic notations, Recurrence Relations, Master Theorem, and frequently asked college examination / viva questions.
+                </p>
+
+                <!-- Big-O Asymptotic Master Table -->
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">1. Algorithm Complexity & Characteristics Matrix</h3>
+                <div class="data-table-container" style="margin-bottom: 2rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Paradigm</th>
+                                <th>Best Time</th>
+                                <th>Average Time</th>
+                                <th>Worst Time</th>
+                                <th>Worst Space</th>
+                                <th>Stable?</th>
+                                <th>In-Place?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Quick Sort</strong></td>
+                                <td>Divide & Conquer</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(n²)</td>
+                                <td>O(log n)</td>
+                                <td>No</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Merge Sort</strong></td>
+                                <td>Divide & Conquer</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(n)</td>
+                                <td>Yes</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Heap Sort</strong></td>
+                                <td>Selection / Heap</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(1)</td>
+                                <td>No</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Insertion Sort</strong></td>
+                                <td>Incremental</td>
+                                <td>O(n)</td>
+                                <td>O(n²)</td>
+                                <td>O(n²)</td>
+                                <td>O(1)</td>
+                                <td>Yes</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Binary Search</strong></td>
+                                <td>Decrease & Conquer</td>
+                                <td>O(1)</td>
+                                <td>O(log n)</td>
+                                <td>O(log n)</td>
+                                <td>O(1)</td>
+                                <td>N/A</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dijkstra</strong></td>
+                                <td>Greedy</td>
+                                <td>O((V+E) log V)</td>
+                                <td>O((V+E) log V)</td>
+                                <td>O((V+E) log V)</td>
+                                <td>O(V)</td>
+                                <td>N/A</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BFS / DFS</strong></td>
+                                <td>Graph Traversal</td>
+                                <td>O(V + E)</td>
+                                <td>O(V + E)</td>
+                                <td>O(V + E)</td>
+                                <td>O(V)</td>
+                                <td>N/A</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>N-Queens</strong></td>
+                                <td>Backtracking</td>
+                                <td>O(N)</td>
+                                <td>O(N!)</td>
+                                <td>O(N!)</td>
+                                <td>O(N)</td>
+                                <td>N/A</td>
+                                <td>Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Master Theorem Reference -->
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">2. Master Theorem for Divide-and-Conquer Recurrences</h3>
+                <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem; font-size: 0.85rem; line-height: 1.7;">
+                    <p style="font-weight: 600; font-family: var(--font-mono); margin-bottom: 0.5rem; color: var(--accent);">
+                        Form: T(n) = a T(n / b) + f(n), where a ≥ 1 and b &gt; 1. Let c = log_b(a).
+                    </p>
+                    <ul style="margin-left: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li><strong>Case 1:</strong> If f(n) = O(n^(c - ε)) for some ε &gt; 0, then <code>T(n) = Θ(n^(log_b a))</code> (Work dominated by leaves).</li>
+                        <li><strong>Case 2:</strong> If f(n) = Θ(n^c * log^k n) where k ≥ 0, then <code>T(n) = Θ(n^(log_b a) * log^(k+1) n)</code> (Work evenly split across tree levels; Merge Sort: T(n) = 2T(n/2) + O(n) yields Θ(n log n)).</li>
+                        <li><strong>Case 3:</strong> If f(n) = Ω(n^(c + ε)) for some ε &gt; 0 and regularity condition holds (a*f(n/b) ≤ k*f(n)), then <code>T(n) = Θ(f(n))</code> (Work dominated by root).</li>
+                    </ul>
+                </div>
+
+                <!-- Viva Questions & Answers -->
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.75rem;">3. Essential DAA Viva Voce Questions & Answers</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">Q1: Why is Quick Sort preferred over Merge Sort for sorting arrays in practice?</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                            QuickSort sorts <em>in-place</em> (auxiliary space O(log n) stack vs O(n) heap allocation for MergeSort) and exhibits exceptional <strong>cache locality</strong> because it iterates sequentially over contiguous memory blocks. Although its worst case is O(n²), randomized pivot selection or Introsort virtually eliminates this risk.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">Q2: What is the fundamental difference between Backtracking and Dynamic Programming?</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                            <strong>Backtracking</strong> solves Constraint Satisfaction Problems by depth-first searching a state-space tree and abandoning ("pruning") partial candidates as soon as they violate constraints (e.g., N-Queens, Sudoku). <strong>Dynamic Programming</strong> solves optimization problems exhibiting <em>optimal substructure</em> and <em>overlapping subproblems</em> by memoizing or tabulating subproblem solutions to prevent recomputation.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">Q3: Why does Dijkstra's Algorithm fail when negative edge weights are present?</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                            Dijkstra is a <strong>Greedy algorithm</strong>: once a vertex is marked "visited" and extracted from the priority queue, Dijkstra assumes its shortest path is permanently finalized. A negative edge encountered later could lower the distance to an already-visited vertex, invalidating this greedy assumption. Bellman-Ford (O(VE)) must be used instead.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">Q4: What makes an algorithm "Stable"? Give examples.</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                            A sorting algorithm is <strong>stable</strong> if two elements with equal keys appear in the output array in the exact same relative order as in the input array. <strong>Stable:</strong> Merge Sort, Insertion Sort, Bubble Sort. <strong>Unstable:</strong> Quick Sort, Heap Sort, Selection Sort.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div style="max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <span><strong>AlgoScope</strong> — DAA Algorithm Visualizer & Complexity Analyzer Mini Project</span>
+            <span>Built with Python & Flask • Clean Academic Edition</span>
+        </div>
+    </footer>
+
+    <!-- Visualizer Scripts -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/sorting_visualizer.js"></script>
+    <script src="/static/js/searching_visualizer.js"></script>
+    <script src="/static/js/graph_visualizer.js"></script>
+    <script src="/static/js/backtracking_visualizer.js"></script>
+    <script src="/static/js/complexity_analyzer.js"></script>
+</body>
+</html>
